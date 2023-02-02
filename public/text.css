@@ -1,0 +1,18 @@
+body {
+    font-size: 7vw;
+    text-align: center;
+
+    font-family: 'Varela Round';
+    color: white;
+    text-shadow: 0.2vh 0.2vw rgb(45, 43, 43);
+}
+
+.textMain {
+    font-size: 5vmax;
+
+    text-shadow: 0.3vh 0.3vw rgb(45, 43, 43);
+}
+
+.subText {
+    font-size: 3vmax;
+}

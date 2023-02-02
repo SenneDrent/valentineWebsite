@@ -1,0 +1,64 @@
+*{
+    padding: 0;
+    margin: 0;
+  }
+
+body {
+    min-height: 100vh;
+    height: calc(var(--vh, 1vh) * 100);
+
+    display: grid;
+    grid-template-columns: auto auto auto;
+    background-color: rgb(249, 152, 169);
+
+    width: 100vw;
+    height: 100vh;
+}
+
+#mainContainer {
+    display: flex;
+    flex-direction: column;
+    grid-column-start: 2;
+    grid-column-end: 2;
+    grid-row-start: 2;
+    grid-row-end: 2;
+
+    animation-name: start;
+    animation-duration: 4s;
+}
+
+#mainContainer > * {
+    margin: 20px;
+}
+
+#yesOrNo {
+    /* margin-left: 30px;
+    margin-right: 30px; */
+    display: flex;
+    justify-content: center;
+    /* padding: 40px; */
+
+    padding-right: 10vw;
+    padding-left: 10vw;
+}
+
+/* for the buttons */
+#yesOrNo > * {
+    font-family: 'Varela Round';
+    font-size: 2vmax;
+    
+    flex:1;
+    padding: 20px;
+    
+    margin-left: 20px;
+    margin-right: 20px;
+    border-radius: 10px;
+
+    border-color: rgb(45, 43, 43);
+}
+
+@keyframes start {
+    0%   {left:0px; margin-top:100vh;}
+    25%  {left:200px; margin-top:0px;}
+}
+

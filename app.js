@@ -1,59 +1,110 @@
-const express = require("express");
-const app = express();
-const port = process.env.PORT || 3001;
+//- boilerplate zone ----
+require('dotenv').config();
+const express = require('express');
+const mongoose = require('mongoose');
 
-app.get("/", (req, res) => res.type('html').send(html));
+const port = process.env.PORT || 3000;
+
+const app = express();
+
+const connectionParams = {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+}
+
+mongoose.connect(process.env.DATABASE_URL, connectionParams).then(() => {
+    console.log("database connected");
+});
+
+const responseSchema = new mongoose.Schema({
+    name: {
+        type: String,
+    },
+    anwser: {
+        type: String,
+    }
+});
+
+const responseCollection = mongoose.model("responses", responseSchema);
+
+
+app.use(express.urlencoded({extended: true}));
+app.set('view engine', 'ejs');
+// ---------------------
+let anwser = "not yet"
+let anwsered = false;
+
+app.use(express.static('public'));
+
+app.use(function (req, res, next) {
+    responseCollection.findOne({name: "website"}, (err, data)=> {
+        if (err) {
+            res.status(404).send("couldnt connect to db");
+            next()
+        }
+        else {  
+            anwser = data.anwser;
+            next()
+        }
+    });
+    
+})
+
+app.use("/admin", (req, res) => {
+    if(req.query.password != "LoveBecauseItsUnbreakable") {
+        res.redirect("/");
+    }
+    else {
+        res.render('admin/admin', {anwsered: anwser});
+    }
+});
+
+app.get("/admin", (req, res) => {
+    if(req.query.password != "LoveBecauseItsUnbreakable") {
+        res.redirect("/");
+    }
+});
+
+//callback checking if she anwsered, redirects to the right page
+app.use(function (req, res, next) {
+    let PostGivenAnwser = req.body.anwser
+    //if post with anwser came through, write to file
+    if (PostGivenAnwser === "yes" || PostGivenAnwser === "no") {
+        responseCollection.updateOne({name: "website"}, {anwser: PostGivenAnwser}, (err, data)=> {});
+    }
+    anwsered = (anwser === "yes" || anwser === "no");
+
+    //route to correct page
+    if (anwsered && req.originalUrl != "/anwser") {
+        res.redirect("/anwser");
+    }
+    else if (!anwsered && req.originalUrl != "/asking") {
+        res.redirect("/asking");
+    }
+    else next();
+});
+
+app.get("/asking", (req, res) => {
+    res.render("user/askingMonika");
+})
+
+//--- For when she has anwsered ---
+
+const yesmsg = "alright! meet me at [location] at 8pm ;)";
+const nomsg = "aww too bad! Anyways, thank you for anwsering :)";
+
+app.post("/anwser", (req, res) => {
+    let msgToSend;
+    if (anwser === "yes") msgToSend = yesmsg;
+    else msgToSend = nomsg;
+    res.render("user/anwsered", {anwser: anwser, msg: msgToSend}); 
+})
+
+app.get("/anwser", (req, res) => {
+    let msgToSend;
+    if (anwser === "yes") msgToSend = yesmsg;
+    else msgToSend = nomsg;
+    res.render("user/anwsered", {anwser: anwser, msg: msgToSend});
+});
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
-
-
-const html = `
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Hello from Render!</title>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-    <script>
-      setTimeout(() => {
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 },
-          disableForReducedMotion: true
-        });
-      }, 500);
-    </script>
-    <style>
-      @import url("https://p.typekit.net/p.css?s=1&k=vnd5zic&ht=tk&f=39475.39476.39477.39478.39479.39480.39481.39482&a=18673890&app=typekit&e=css");
-      @font-face {
-        font-family: "neo-sans";
-        src: url("https://use.typekit.net/af/00ac0a/00000000000000003b9b2033/27/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3") format("woff2"), url("https://use.typekit.net/af/00ac0a/00000000000000003b9b2033/27/d?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3") format("woff"), url("https://use.typekit.net/af/00ac0a/00000000000000003b9b2033/27/a?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3") format("opentype");
-        font-style: normal;
-        font-weight: 700;
-      }
-      html {
-        font-family: neo-sans;
-        font-weight: 700;
-        font-size: calc(62rem / 16);
-      }
-      body {
-        background: white;
-      }
-      section {
-        border-radius: 1em;
-        padding: 1em;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        margin-right: -50%;
-        transform: translate(-50%, -50%);
-      }
-    </style>
-  </head>
-  <body>
-    <section>
-      Hello from Render!
-    </section>
-  </body>
-</html>
-`
