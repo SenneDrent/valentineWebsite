@@ -69,7 +69,7 @@ app.get("/admin", (req, res) => {
 app.use(function (req, res, next) {
     let PostGivenAnwser = req.body.anwser
     //if post with anwser came through, write to file
-    if (PostGivenAnwser === "yes" || PostGivenAnwser === "no") {
+    if ((PostGivenAnwser === "yes" || PostGivenAnwser === "no") && anwsered == false) {
         responseCollection.updateOne({name: "website"}, {anwser: PostGivenAnwser}, (err, data)=> {});
     }
     anwsered = (anwser === "yes" || anwser === "no");
@@ -90,8 +90,8 @@ app.get("/asking", (req, res) => {
 
 //--- For when she has anwsered ---
 
-const yesmsg = "alright! meet me at [location] at 8pm ;)";
-const nomsg = "aww too bad! Anyways, thank you for anwsering :)";
+const yesmsg = "Alright! Meet me by restaurant huszár, Hooikade 13, at 8pm ;)";
+const nomsg = "Aww too bad! Anyways, thank you for anwsering :)";
 
 app.post("/anwser", (req, res) => {
     let msgToSend;
